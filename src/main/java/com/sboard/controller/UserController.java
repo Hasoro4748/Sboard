@@ -2,16 +2,19 @@ package com.sboard.controller;
 
 import com.sboard.dto.TermsDTO;
 import com.sboard.dto.UserDTO;
+import com.sboard.service.MailSendService;
 import com.sboard.service.TermsService;
 import com.sboard.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -20,6 +23,7 @@ public class UserController {
 
     private final UserService userService;
     private final TermsService termsService;
+    private final MailSendService mailSendService;
 
     @GetMapping("/user/login")
     public String login(){
@@ -43,7 +47,56 @@ public class UserController {
         log.info("Check uid: " + uid);
         return ResponseEntity.ok(userService.selectUserByUid(uid));
     }
+    @GetMapping("/user/register/checkNick/{nick}")
+    public ResponseEntity<Boolean> checkNick(@PathVariable("nick") String nick){
+        log.info("Check nick: " + nick);
+        return ResponseEntity.ok(userService.selectUserByNick(nick));
+    }
+    @GetMapping("/user/register/checkEmail/{email}")
+    public ResponseEntity checkEmail(@PathVariable("email") String email, HttpSession session){
+        log.info("Check email " + email);
+        if(userService.selectUserByEmail(email)){
+            return ResponseEntity.ok(true);
+        }
+        else {
+            String code = mailSendService.joinEmail(email);
+            session.setAttribute("code", String.valueOf(code));
+            return ResponseEntity.ok(false);
+        }
+    }
 
+    // 이메일 인증 코드 검사
+    @ResponseBody
+    @PostMapping("/email")
+    public ResponseEntity<?> checkEmail(HttpSession session, @RequestBody Map<String, String> jsonData){
+
+        log.info("checkEmail code : " + jsonData);
+
+        String receiveCode = jsonData.get("code");
+        log.info("checkEmail receiveCode : " + receiveCode);
+
+        String sessionCode = (String) session.getAttribute("code");
+
+        if(sessionCode.equals(receiveCode)){
+            // Json 생성
+            Map<String, Object> resultMap = new HashMap<>();
+            resultMap.put("result", true);
+
+            return ResponseEntity.ok().body(resultMap);
+        }else{
+            // Json 생성
+            Map<String, Object> resultMap = new HashMap<>();
+            resultMap.put("result", false);
+
+            return ResponseEntity.ok().body(resultMap);
+        }
+    }
+
+    @GetMapping("/user/register/checkHp/{hp}")
+    public ResponseEntity<Boolean> checkHp(@PathVariable("hp") String hp){
+        log.info("Check hp: " + hp);
+        return ResponseEntity.ok(userService.selectUserByHp(hp));
+    }
     @PostMapping("/user/register")
     public String register(UserDTO userDTO){
         userService.insertUser(userDTO);

@@ -24,20 +24,16 @@ public class UserService {
     public boolean selectUserByUid(String uid) {
         return userRepository.existsByUid(uid);
     }
-    public UserDTO selectUserByUsername(String username) {
-        User user = userRepository.findByName(username);
-        return user.toDTO();
+    public boolean selectUserByUsername(String username) {
+        return userRepository.existsByName(username);
     }
-    public UserDTO selectUserByEmail(String email) {
-        User user = userRepository.findByEmail(email);
-        return user.toDTO();
-    }public UserDTO selectUserByNickname(String Nick) {
-        User user = userRepository.findByNick(Nick);
-        return user.toDTO();
+    public boolean selectUserByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }public boolean selectUserByNick(String Nick) {
+        return userRepository.existsByNick(Nick);
     }
-    public UserDTO selectUserByHp(String Hp) {
-        User user = userRepository.findByHp(Hp);
-        return user.toDTO();
+    public boolean selectUserByHp(String Hp) {
+        return userRepository.existsByHp(Hp);
     }
 
 }
