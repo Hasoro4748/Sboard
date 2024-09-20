@@ -20,6 +20,7 @@ server:
 spring:
     application:
         name: sboard
+        version: 0.0.1
     datasource:
         driver-class-name: com.mysql.cj.jdbc.Driver
         password: Hasorocom7.
@@ -38,3 +39,5 @@ spring:
             hibernate:
                 format_sql: true
                 show_sql: true
+    thymeleaf:
+        prefix: classpath:/templates

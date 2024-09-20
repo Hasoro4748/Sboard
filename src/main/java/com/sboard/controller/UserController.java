@@ -8,6 +8,7 @@ import com.sboard.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,8 +26,12 @@ public class UserController {
     private final TermsService termsService;
     private final MailSendService mailSendService;
 
+    @Value("${spring.application.version}")
+    private String appVersion;
+
     @GetMapping("/user/login")
-    public String login(){
+    public String login(Model model) {
+        model.addAttribute("appVersion", appVersion);
         return "/user/login";
     }
 
